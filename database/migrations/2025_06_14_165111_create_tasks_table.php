@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('due_date');
             $table->enum('priority', ['baixa', 'media', 'alta']);
             $table->enum('category', ['pessoal','trabalho','estudos','casa','saude']);
+            $table->boolean('done')->default(false);
             $table->timestamps();
         });
     }

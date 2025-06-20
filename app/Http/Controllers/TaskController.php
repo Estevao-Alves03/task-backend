@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
@@ -14,43 +16,47 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::paginate(15);
-        // return response()->json($tasks);
-        return view('tasks.index', compact('tasks'));
+        return response()->json($tasks);
+        // return view('tasks.index', compact('tasks'));
     }
 
 
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
+
+public function store(Request $request)
 {
     try {
         $data = $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => [
+            'due_date'    => [
                 'required',
                 'date',
                 function ($attribute, $value, $fail) {
-                    if (strtotime($value) < strtotime('today')) {
-                        $fail('A data de vencimento não pode ser anterior a hoje!');
+                    // converte ao fuso de SP
+                    $clientDate = Carbon::parse($value, 'America/Sao_Paulo')->startOfDay();
+                    $today      = Carbon::today('America/Sao_Paulo')->startOfDay();
+                    if ($clientDate->lt($today)) {
+                        $fail('A data de vencimento não pode ser anterior a hoje.');
                     }
-                }
+                },
             ],
-            'priority' => 'required|in:baixa,media,alta',
-            'category' => 'required|in:pessoal,trabalho,estudos,casa,saude',
+            'priority'    => 'required|in:baixa,media,alta',
+            'category'    => 'required|in:pessoal,trabalho,estudos,casa,saude',
         ]);
 
+        $data['done'] = false;
         $task = Task::create($data);
 
-        // Retorne JSON com a tarefa criada
         return response()->json([
             'message' => 'Tarefa criada com sucesso!',
-            'task' => $task,
+            'task'    => $task,
         ], 201);
-    } catch (\Illuminate\Validation\ValidationException $e) {
+    } catch (ValidationException $e) {
         return response()->json([
-            'errors' => $e->errors(),
+            'errors'  => $e->errors(),
             'message' => 'Verifique os campos destacados',
         ], 422);
     } catch (\Exception $e) {
@@ -59,6 +65,8 @@ class TaskController extends Controller
         ], 500);
     }
 }
+
+
 
 
     public function create()
@@ -85,10 +93,15 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
-    {
-        //
-    }
+public function update(Request $request, $id)
+{
+    $task = Task::findOrFail($id);
+    $task->done = $request->input('done');
+    $task->save();
+    return response()->json($task);
+}
+
+
 
     /**
      * Remove the specified resource from storage.

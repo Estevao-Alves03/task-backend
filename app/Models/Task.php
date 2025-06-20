@@ -15,9 +15,11 @@ class Task extends Model
         'due_date',
         'priority',
         'category',
+        'done'
     ];
 
     protected $casts =[
         'due_date' => 'datetime',
+        'done' => 'boolean'
     ];
 }
