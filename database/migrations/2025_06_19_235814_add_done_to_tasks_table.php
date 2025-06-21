@@ -11,16 +11,16 @@ return new class extends Migration
      */
    public function up()
 {
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->boolean('done')->default(false);
-    });
+    // Schema::table('tasks', function (Blueprint $table) {
+    //     $table->boolean('done')->default(false);
+    // });
 }
 
 public function down()
 {
-    Schema::table('tasks', function (Blueprint $table) {
-        $table->dropColumn('done');
-    });
+    // Schema::table('tasks', function (Blueprint $table) {
+    //     $table->dropColumn('done');
+    // });
 }
 
 };

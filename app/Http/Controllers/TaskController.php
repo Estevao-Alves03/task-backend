@@ -106,11 +106,14 @@ public function update(Request $request, $id)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
-    {
-        $task->delete();
-        return redirect()->route('tasks.index')->with('message', 'tarefa excluida com sucesso');
-    }
+public function destroy($id)
+{
+    $task = Task::findOrFail($id);
+    $task->delete();
+
+    return response()->json(['message' => 'Tarefa excluída com sucesso']);
+}
+
 
     // public function __construct()
     // {
