@@ -7,6 +7,7 @@ services:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.4/app'
         extra_hosts:
+            - "pgsql:172.20.0.2" 
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-8000}:80'
@@ -26,9 +27,9 @@ services:
     pgsql:
         image: 'postgres:17'
         ports:
-            - '${FORWARD_DB_PORT:-5433}:5432'
+            - '5433:5432'
         environment:
-            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            # PGPASSWORD: '${DB_PASSWORD:-secret}'
             POSTGRES_DB: 'taskmanager'
             POSTGRES_USER: 'estevao'
             POSTGRES_PASSWORD: 'dbtask'
@@ -38,16 +39,10 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
-            retries: 3
+            test: ["CMD-SHELL", "pg_isready -U estevao -d taskmanager"]
+            interval: 5s
             timeout: 5s
+            retries: 5
 networks:
     sail:
         driver: bridge
