@@ -13,7 +13,7 @@
     <p><strong>Categoria:</strong>{{$task->category}}</p>
     <p><strong>Data do vencimento:</strong>{{\Carbon\Carbon::parse($task->due_date)->format('d/m/y')}}</p>
 
-    <form action={{route('tasks.destroy', $task->id)}} method="post" onsubmit="return confirm('tem certeza que deseja excluir?')">
+    <form action={{route('tasks.destroy', $task->id)}} method="POST" onsubmit="return confirm('tem certeza que deseja excluir?')">
         @csrf
         @method('DELETE')
         <button type="submit">Deletar</button>
